@@ -120,16 +120,81 @@ Hint (joker) buttons
 
 Planned sketch:
 
- -----------------------------------------------------------
-|                       MAP (Leaflet)                   |
-|-----------------------------------------------------------|
-|  Question: Which country is this point located in?       |
-|  [A] ...   [B] ...                                       |
-|  [C] ...   [D] ...                                       |
-|                                                           |
-|  Question: x/15   Score: xx   Time: xx sec   Lives: ❤️❤️   |
-|  Hints: [🔍 Zoom] [❌ 50:50] [⏱ +10s]                    |
- -----------------------------------------------------------
+ --------------------------------------------------------
+|                                                        |
+|            🌍 WHO WANTS TO BE A GEOGRAPHER?           |
+|                                                        |
+|                 (World Geography Quiz Game)            |
+|                                                        |
+|     ------------------------------------------------     |   
+|     |                  START GAME                    |   |
+|     ------------------------------------------------     |
+|                                                        |
+|        ⭐ 15 geography questions                       |
+|        ⭐ 2 lives                                      |
+|        ⭐ 20 seconds per question                      |
+|        ⭐ 3 Lifelines: Zoom Hint – 50:50 – +10s        |
+|                                                        |
+|     -----------------------------------------------     |
+|     |                 HOW TO PLAY                    |   |
+|     -----------------------------------------------     |
+|                                                        |
+|                          v1.0                          |
+ --------------------------------------------------------
+
+ --------------------------------------------------------
+|                      ❓ HOW TO PLAY                    |
+|                                                        |
+|  • A location will be marked on the map                |
+|  • Answer the question based on the location shown     |
+|  • Each question has 20 seconds                        |
+|  • You have a total of 2 lives                         |
+|  • Lifelines:                                           |
+|      🔍 Zoom Hint – Zooms into the marked location      |
+|      ❌ 50:50 – Removes two incorrect options          |
+|      ⏱ +10s – Adds 10 extra seconds to the timer       |
+|                                                        |
+|     -----------------------------------------------     |
+|     |                    OKAY                         |  |
+|     -----------------------------------------------     |
+ --------------------------------------------------------
+
+ --------------------------------------------------------
+|                                                        |
+|                     🎉 CONGRATULATIONS! 🎉             |
+|                                                        |
+|               You completed all questions!             |
+|                                                        |
+|                       Your Score: 14 / 15              |
+|                                                        |
+|     ------------------------------------------------     |
+|     |                  PLAY AGAIN                     |   |
+|     ------------------------------------------------     |
+|                                                        |
+|     -----------------------------------------------     |
+|     |                 GO TO MAIN MENU                |   |
+|     -----------------------------------------------     |
+|                                                        |
+ --------------------------------------------------------
+
+ --------------------------------------------------------
+|                                                        |
+|                         💔 GAME OVER 💔               |
+|                                                        |
+|               You ran out of all your lives.           |
+|                                                        |
+|                       Your Score: 7 / 15               |
+|                                                        |
+|     ------------------------------------------------     |
+|     |                  TRY AGAIN                      |   |
+|     ------------------------------------------------     |
+|                                                        |
+|     -----------------------------------------------     |
+|     |                 GO TO MAIN MENU                |   |
+|     -----------------------------------------------     |
+|                                                        |
+ --------------------------------------------------------
+
 
 🧰 Technologies
 
@@ -167,8 +232,5 @@ This README represents the planned and intended design of the game.
 Certain features, mechanics, or visual elements may change during the development process depending on technical feasibility and project progress.
 
 
-Listing planned features
-
-Including sketches and gameplay flow
 
 Documenting the intended use of web technologies
