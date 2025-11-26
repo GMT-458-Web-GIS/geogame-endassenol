@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Who Wants to Be a Geographer?</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="leaflet.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f4667;
+      color: #fff;
+    }
+
+    /* START & END SCREEN */
+    .screen {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .center-box {
+      background: rgba(255,255,255,0.12);
+      padding: 32px 40px;
+      border-radius: 16px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      max-width: 480px;
+      width: 90%;
+      color: #fff;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      padding: 10px 22px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 6px;
+    }
+
+    .primary-btn {
+      background: #00c2c7;
+      color: #fff;
+    }
+
+    .primary-btn:hover {
+      background: #009fa4;
+    }
+
+    .secondary-btn {
+      background: #eeeeee;
+      color: #222;
+    }
+
+    .secondary-btn:hover {
+      background: #dddddd;
+    }
+
+    /* GAME SCREEN – ÜSTTEN BAŞLASIN */
+    #game-screen {
+      justify-content: flex-start;
+      flex-direction: column;
+      align-items: stretch;
+      background: #f5f5f5;
+      color: #000;
+      margin: 0;
+      padding: 0;
+      position: relative;
+      top: 0;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #game-panel {
+      padding: 16px 24px;
+      border-top: 2px solid #008080;
+      background: #f7f7f7;
+      margin: 0;
+    }
+
+    #hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    #question-text {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    #options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .player-panel {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+    }
+
+    .player-panel h3 {
+      margin: 0 0 6px 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .player-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .option {
+      padding: 8px 14px;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #ffffff;
+      min-width: 120px;
+      text-align: left;
+    }
+
+    .option:hover {
+      background: #eaeaea;
+    }
+
+    .option.correct {
+      background: #c8e6c9;
+      border-color: #2e7d32;
+    }
+
+    .option.wrong {
+      background: #ffcdd2;
+      border-color: #c62828;
+    }
+
+    #hints {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .player-hints {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      flex: 1 1 220px;
+    }
+
+    .player-hints h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .player-hints button {
+      padding: 6px 10px;
+      font-size: 13px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .player-hints button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="center-box">
+      <h1>Who Wants to Be a Geographer?</h1>
+      <p>World Geography Quiz Game – 2 Players</p>
+      <button id="startGameButton" class="primary-btn">Start Game</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div id="map"></div>
+
+    <div id="game-panel">
+      <div id="hud">
+        <span id="score-p1">Player 1 Score: 0</span>
+        <span id="lives-p1">P1 Lives: ❤️❤️</span>
+        <span id="timer">Time: 20</span>
+        <span id="question-count">Question: 1 / 15</span>
+        <span id="lives-p2">P2 Lives: ❤️❤️</span>
+        <span id="score-p2">Player 2 Score: 0</span>
+      </div>
+
+      <div id="question-text">Question will appear here...</div>
+
+      <div id="options">
+        <div class="player-panel">
+          <h3>Player 1</h3>
+          <div class="player-options">
+            <button class="option p1" data-player="1" data-index="0">Option A</button>
+            <button class="option p1" data-player="1" data-index="1">Option B</button>
+            <button class="option p1" data-player="1" data-index="2">Option C</button>
+            <button class="option p1" data-player="1" data-index="3">Option D</button>
+          </div>
+        </div>
+
+        <div class="player-panel">
+          <h3>Player 2</h3>
+          <div class="player-options">
+            <button class="option p2" data-player="2" data-index="0">Option A</button>
+            <button class="option p2" data-player="2" data-index="1">Option B</button>
+            <button class="option p2" data-player="2" data-index="2">Option C</button>
+            <button class="option p2" data-player="2" data-index="3">Option D</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hints">
+        <div class="player-hints">
+          <h4>Player 1 Hints</h4>
+          <button id="zoomHintP1">🔍 Zoom Hint</button>
+          <button id="fiftyHintP1">❌ 50 : 50</button>
+          <button id="timeHintP1">⏱ +10s</button>
+        </div>
+        <div class="player-hints">
+          <h4>Player 2 Hints</h4>
+          <button id="zoomHintP2">🔍 Zoom Hint</button>
+          <button id="fiftyHintP2">❌ 50 : 50</button>
+          <button id="timeHintP2">⏱ +10s</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="end-screen" class="screen">
+    <div class="center-box">
+      <h2 id="end-title">Game Over</h2>
+      <p id="end-message">You answered all questions!</p>
+      <p id="end-score-p1">Player 1 Score: 0</p>
+      <p id="end-score-p2">Player 2 Score: 0</p>
+      <p id="end-winner">Winner: -</p>
+
+      <button id="playAgainButton" class="primary-btn">Play Again</button>
+      <button id="backToMenuButton" class="secondary-btn">Main Menu</button>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="leaflet.js"></script>
+
+  <script>
+    // Leaflet icon path
+    L.Icon.Default.imagePath = 'images/';
+
+    // Map
+    const map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 8,
+      minZoom: 2
+    }).addTo(map);
+
+    let currentMarker = null;
+
+    // Questions
+    const questions = [
+      {
+        text: "Which country is marked on the map?",
+        options: ["Brazil", "Turkey", "Spain", "Egypt"],
+        correctIndex: 1,
+        coords: [39.93, 32.85],
+        zoom: 3
+      },
+      {
+        text: "Which capital city is marked on the map?",
+        options: ["London", "Rome", "Paris", "Berlin"],
+        correctIndex: 0,
+        coords: [51.5074, -0.1278],
+        zoom: 3
+      },
+      {
+        text: "The marker shows a major city in the United States. Which one?",
+        options: ["New York", "Chicago", "Los Angeles", "Miami"],
+        correctIndex: 0,
+        coords: [40.7128, -74.0060],
+        zoom: 3
+      },
+      {
+        text: "Which capital city in Asia is marked?",
+        options: ["Tokyo", "Seoul", "Beijing", "Bangkok"],
+        correctIndex: 0,
+        coords: [35.6895, 139.6917],
+        zoom: 3
+      },
+      {
+        text: "Which country does this location belong to?",
+        options: ["Brazil", "Argentina", "Mexico", "Peru"],
+        correctIndex: 0,
+        coords: [-14.2350, -51.9253],
+        zoom: 3
+      },
+      {
+        text: "The marker shows a city near the Nile River. Which capital is this?",
+        options: ["Cairo", "Khartoum", "Tripoli", "Riyadh"],
+        correctIndex: 0,
+        coords: [30.0444, 31.2357],
+        zoom: 3
+      },
+      {
+        text: "This marker is located in Australia. Which city is this?",
+        options: ["Sydney", "Melbourne", "Perth", "Brisbane"],
+        correctIndex: 0,
+        coords: [-33.8688, 151.2093],
+        zoom: 3
+      },
+      {
+        text: "Which city at the southern tip of Africa is marked?",
+        options: ["Cape Town", "Durban", "Johannesburg", "Gaborone"],
+        correctIndex: 0,
+        coords: [-33.9249, 18.4241],
+        zoom: 3
+      },
+      {
+        text: "The marker shows a capital city in India. Which one?",
+        options: ["Mumbai", "New Delhi", "Kolkata", "Bengaluru"],
+        correctIndex: 1,
+        coords: [28.6139, 77.2090],
+        zoom: 3
+      },
+      {
+        text: "Which capital city of Canada is marked?",
+        options: ["Vancouver", "Toronto", "Ottawa", "Montreal"],
+        correctIndex: 2,
+        coords: [45.4215, -75.6972],
+        zoom: 3
+      },
+      {
+        text: "The marker shows the capital of Germany. Which city is it?",
+        options: ["Munich", "Hamburg", "Frankfurt", "Berlin"],
+        correctIndex: 3,
+        coords: [52.5200, 13.4050],
+        zoom: 3
+      },
+      {
+        text: "Which European capital city is marked?",
+        options: ["Lisbon", "Madrid", "Rome", "Athens"],
+        correctIndex: 1,
+        coords: [40.4168, -3.7038],
+        zoom: 3
+      },
+      {
+        text: "This marker shows the capital of Russia. Which city?",
+        options: ["Saint Petersburg", "Moscow", "Kazan", "Novosibirsk"],
+        correctIndex: 1,
+        coords: [55.7558, 37.6173],
+        zoom: 3
+      },
+      {
+        text: "Which South American capital is marked?",
+        options: ["Santiago", "Buenos Aires", "Lima", "Bogotá"],
+        correctIndex: 1,
+        coords: [-34.6037, -58.3816],
+        zoom: 3
+      },
+      {
+        text: "The marker shows a capital city in China. Which one?",
+        options: ["Shanghai", "Beijing", "Guangzhou", "Hong Kong"],
+        correctIndex: 1,
+        coords: [39.9042, 116.4074],
+        zoom: 3
+      }
+    ];
+
+    // DOM
+    const startScreen       = document.getElementById("start-screen");
+    const gameScreen        = document.getElementById("game-screen");
+    const endScreen         = document.getElementById("end-screen");
+
+    const startButton       = document.getElementById("startGameButton");
+    const playAgainButton   = document.getElementById("playAgainButton");
+    const backToMenuButton  = document.getElementById("backToMenuButton");
+
+    const questionText      = document.getElementById("question-text");
+    const optionButtonsP1   = document.querySelectorAll(".option.p1");
+    const optionButtonsP2   = document.querySelectorAll(".option.p2");
+    const timerSpan         = document.getElementById("timer");
+    const questionCountSpan = document.getElementById("question-count");
+    const scoreP1Span       = document.getElementById("score-p1");
+    const scoreP2Span       = document.getElementById("score-p2");
+    const livesP1Span       = document.getElementById("lives-p1");
+    const livesP2Span       = document.getElementById("lives-p2");
+
+    const zoomHintBtnP1     = document.getElementById("zoomHintP1");
+    const fiftyHintBtnP1    = document.getElementById("fiftyHintP1");
+    const timeHintBtnP1     = document.getElementById("timeHintP1");
+
+    const zoomHintBtnP2     = document.getElementById("zoomHintP2");
+    const fiftyHintBtnP2    = document.getElementById("fiftyHintP2");
+    const timeHintBtnP2     = document.getElementById("timeHintP2");
+
+    const endTitle          = document.getElementById("end-title");
+    const endMessage        = document.getElementById("end-message");
+    const endScoreP1        = document.getElementById("end-score-p1");
+    const endScoreP2        = document.getElementById("end-score-p2");
+    const endWinner         = document.getElementById("end-winner");
+
+    // Game state
+    let currentQuestionIndex = 0;
+    let timeLeft             = 20;
+    let timerId              = null;
+    let isQuestionActive     = false;
+
+    // Lives per player
+    let lives = { 1: 2, 2: 2 };
+
+    // Joker usage per player (OYUN BOYUNCA 1 KEZ)
+    let zoomUsed  = { 1: false, 2: false };
+    let fiftyUsed = { 1: false, 2: false };
+    let timeUsed  = { 1: false, 2: false };
+
+    let scores = { 1: 0, 2: 0 };
+    let answeredThisQuestion = { 1: false, 2: false };
+
+    function showScreen(screen) {
+      startScreen.classList.remove("active");
+      gameScreen.classList.remove("active");
+      endScreen.classList.remove("active");
+      screen.classList.add("active");
+    }
+
+    function updateQuestionCount() {
+      questionCountSpan.textContent =
+        "Question: " + (currentQuestionIndex + 1) + " / " + questions.length;
+    }
+
+    function updateScores() {
+      scoreP1Span.textContent = "Player 1 Score: " + scores[1];
+      scoreP2Span.textContent = "Player 2 Score: " + scores[2];
+    }
+
+    function updateLives() {
+      livesP1Span.textContent = "P1 Lives: " + "❤️".repeat(Math.max(lives[1], 0));
+      livesP2Span.textContent = "P2 Lives: " + "❤️".repeat(Math.max(lives[2], 0));
+    }
+
+    function placeMarker(coords, zoom) {
+      if (currentMarker) map.removeLayer(currentMarker);
+      map.setView(coords, zoom);
+      currentMarker = L.marker(coords).addTo(map);
+    }
+
+    function resetOptions() {
+      [...optionButtonsP1, ...optionButtonsP2].forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove("correct", "wrong");
+      });
+      answeredThisQuestion[1] = false;
+      answeredThisQuestion[2] = false;
+    }
+
+    function startTimer() {
+      clearInterval(timerId);
+      timeLeft = 20;
+      timerSpan.textContent = "Time: " + timeLeft;
+
+      timerId = setInterval(() => {
+        timeLeft--;
+        timerSpan.textContent = "Time: " + timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerId);
+          handleTimeUp();
+        }
+      }, 1000);
+    }
+
+    function loadQuestion() {
+      if (currentQuestionIndex >= questions.length) {
+        endGame("You answered all questions!");
+        return;
+      }
+
+      const q = questions[currentQuestionIndex];
+
+      questionText.textContent = q.text;
+      updateQuestionCount();
+      resetOptions();
+      placeMarker(q.coords, q.zoom);
+
+      optionButtonsP1.forEach((btn, index) => {
+        btn.textContent = q.options[index];
+      });
+      optionButtonsP2.forEach((btn, index) => {
+        btn.textContent = q.options[index];
+      });
+
+      isQuestionActive = true;
+      startTimer();
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      loadQuestion();
+    }
+
+    function checkLivesAndMaybeEnd() {
+      // If one player's lives <= 0 and the other's > 0 -> other wins immediately
+      if (lives[1] <= 0 && lives[2] > 0) {
+        endGame("Player 1 ran out of lives.");
+        return true;
+      }
+      if (lives[2] <= 0 && lives[1] > 0) {
+        endGame("Player 2 ran out of lives.");
+        return true;
+      }
+      // Both 0 -> tie by lives, decide by score
+      if (lives[1] <= 0 && lives[2] <= 0) {
+        endGame("Both players ran out of lives.");
+        return true;
+      }
+      return false;
+    }
+
+    // Answer handling
+    function handleAnswer(player, index) {
+      if (!isQuestionActive) return;
+      if (answeredThisQuestion[player]) return;
+
+      const q = questions[currentQuestionIndex];
+      const isCorrect = index === q.correctIndex;
+      const buttons = player === 1 ? optionButtonsP1 : optionButtonsP2;
+
+      answeredThisQuestion[player] = true;
+
+      if (isCorrect) {
+        buttons[index].classList.add("correct");
+        scores[player]++;
+        updateScores();
+      } else {
+        buttons[index].classList.add("wrong");
+        lives[player]--;
+        updateLives();
+
+        if (checkLivesAndMaybeEnd()) {
+          isQuestionActive = false;
+          clearInterval(timerId);
+          return;
+        }
+      }
+
+      // If both have answered, move to next question
+      if (answeredThisQuestion[1] && answeredThisQuestion[2]) {
+        isQuestionActive = false;
+        clearInterval(timerId);
+        setTimeout(nextQuestion, 800);
+      }
+    }
+
+    // Time up: cevaplamayanların canı gitsin
+    function handleTimeUp() {
+      isQuestionActive = false;
+
+      [1, 2].forEach(p => {
+        if (!answeredThisQuestion[p]) {
+          lives[p]--;
+        }
+      });
+
+      updateLives();
+
+      if (checkLivesAndMaybeEnd()) {
+        return;
+      }
+
+      setTimeout(nextQuestion, 500);
+    }
+
+    function endGame(message) {
+      clearInterval(timerId);
+      isQuestionActive = false;
+
+      endMessage.textContent = message;
+      endScoreP1.textContent = "Player 1 Score: " + scores[1] + " / " + questions.length;
+      endScoreP2.textContent = "Player 2 Score: " + scores[2] + " / " + questions.length;
+
+      // Eğer canlardan biri 0 olup diğeri değilse kazanan zaten belli,
+      // yoksa skora göre karar ver
+      if (lives[1] > lives[2]) {
+        endTitle.textContent = "🏆 Player 1 Wins!";
+        endWinner.textContent = "Winner: Player 1";
+      } else if (lives[2] > lives[1]) {
+        endTitle.textContent = "🏆 Player 2 Wins!";
+        endWinner.textContent = "Winner: Player 2";
+      } else {
+        if (scores[1] > scores[2]) {
+          endTitle.textContent = "🏆 Player 1 Wins!";
+          endWinner.textContent = "Winner: Player 1";
+        } else if (scores[2] > scores[1]) {
+          endTitle.textContent = "🏆 Player 2 Wins!";
+          endWinner.textContent = "Winner: Player 2";
+        } else {
+          endTitle.textContent = "🤝 It's a Tie!";
+          endWinner.textContent = "Winner: - (Tie)";
+        }
+      }
+
+      showScreen(endScreen);
+    }
+
+    // Jokerler – HER OYUNCU KENDİ HAKKINI KULLANIR, OYUN BOYUNCA 1 KEZ
+
+    function useZoomHint(player) {
+      if (!isQuestionActive) return;
+      if (zoomUsed[player]) return;
+      zoomUsed[player] = true;
+
+      if (player === 1) zoomHintBtnP1.disabled = true;
+      if (player === 2) zoomHintBtnP2.disabled = true;
+
+      const q = questions[currentQuestionIndex];
+      let newZoom = q.zoom + 2;
+      if (newZoom > 8) newZoom = 8;
+      map.setView(q.coords, newZoom);
+    }
+
+    function useFiftyHint(player) {
+      if (!isQuestionActive) return;
+      if (fiftyUsed[player]) return;
+      fiftyUsed[player] = true;
+
+      if (player === 1) fiftyHintBtnP1.disabled = true;
+      if (player === 2) fiftyHintBtnP2.disabled = true;
+
+      const q = questions[currentQuestionIndex];
+      const wrong = [0, 1, 2, 3].filter(i => i !== q.correctIndex);
+      wrong.sort(() => Math.random() - 0.5);
+      const toDisable = wrong.slice(0, 2);
+
+      if (player === 1) {
+        toDisable.forEach(i => optionButtonsP1[i].disabled = true);
+      } else {
+        toDisable.forEach(i => optionButtonsP2[i].disabled = true);
+      }
+    }
+
+    function useTimeHint(player) {
+      if (!isQuestionActive) return;
+      if (timeUsed[player]) return;
+      timeUsed[player] = true;
+
+      if (player === 1) timeHintBtnP1.disabled = true;
+      if (player === 2) timeHintBtnP2.disabled = true;
+
+      timeLeft += 10;
+      timerSpan.textContent = "Time: " + timeLeft;
+    }
+
+    zoomHintBtnP1.addEventListener("click", () => useZoomHint(1));
+    zoomHintBtnP2.addEventListener("click", () => useZoomHint(2));
+
+    fiftyHintBtnP1.addEventListener("click", () => useFiftyHint(1));
+    fiftyHintBtnP2.addEventListener("click", () => useFiftyHint(2));
+
+    timeHintBtnP1.addEventListener("click", () => useTimeHint(1));
+    timeHintBtnP2.addEventListener("click", () => useTimeHint(2));
+
+    // Answer buttons
+    optionButtonsP1.forEach((btn, index) => {
+      btn.addEventListener("click", () => handleAnswer(1, index));
+    });
+
+    optionButtonsP2.forEach((btn, index) => {
+      btn.addEventListener("click", () => handleAnswer(2, index));
+    });
+
+    // Start / restart
+    function startGame() {
+      currentQuestionIndex = 0;
+      scores[1] = 0;
+      scores[2] = 0;
+      lives[1] = 2;
+      lives[2] = 2;
+
+      zoomUsed  = { 1: false, 2: false };
+      fiftyUsed = { 1: false, 2: false };
+      timeUsed  = { 1: false, 2: false };
+
+      // Joker butonlarını yeniden aç
+      zoomHintBtnP1.disabled  = false;
+      fiftyHintBtnP1.disabled = false;
+      timeHintBtnP1.disabled  = false;
+      zoomHintBtnP2.disabled  = false;
+      fiftyHintBtnP2.disabled = false;
+      timeHintBtnP2.disabled  = false;
+
+      updateScores();
+      updateLives();
+      showScreen(gameScreen);
+      map.invalidateSize();
+      loadQuestion();
+    }
+
+    startButton.addEventListener("click", startGame);
+    playAgainButton.addEventListener("click", startGame);
+    backToMenuButton.addEventListener("click", () => showScreen(startScreen));
+  </script>
+
+</body>
+</html>
+

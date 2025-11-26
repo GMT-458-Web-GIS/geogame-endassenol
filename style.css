@@ -1,0 +1,165 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #0f4667;
+  color: #fff;
+}
+
+/* =======================
+   START & END SCREEN
+   (Ortada kutu görünmesi için)
+   ======================= */
+.screen {
+  min-height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.center-box {
+  background: rgba(255,255,255,0.12);
+  padding: 32px 40px;
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  max-width: 480px;
+  width: 90%;
+  color: #fff;
+}
+
+.primary-btn,
+.secondary-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 6px;
+}
+
+.primary-btn {
+  background: #00c2c7;
+  color: #fff;
+}
+.primary-btn:hover {
+  background: #009fa4;
+}
+
+.secondary-btn {
+  background: #eeeeee;
+  color: #222;
+}
+.secondary-btn:hover {
+  background: #dddddd;
+}
+
+/* =======================
+   GAME SCREEN — TEPEYE YAPIŞIK
+   ======================= */
+#game-screen {
+  /* Start/End ekranının ortalama özelliğini override ediyoruz */
+  display: flex !important;
+  justify-content: flex-start !important;
+
+  flex-direction: column;
+  align-items: stretch;
+
+  background: #f5f5f5;
+  color: #000;
+
+  margin: 0;
+  padding: 0;
+
+  position: relative;
+  top: 0;
+}
+
+/* Harita tavana sıfır boşlukla başlıyor */
+#map {
+  height: 400px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Panel */
+#game-panel {
+  padding: 16px 24px;
+  border-top: 2px solid #008080;
+  background: #f7f7f7;
+  margin: 0;
+}
+
+/* HUD */
+#hud {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+#question-text {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+/* Options */
+#options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.option {
+  padding: 8px 14px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  min-width: 120px;
+  text-align: left;
+}
+
+.option:hover {
+  background: #eaeaea;
+}
+
+.option.correct {
+  background: #c8e6c9;
+  border-color: #2e7d32;
+}
+
+.option.wrong {
+  background: #ffcdd2;
+  border-color: #c62828;
+}
+
+/* Hints */
+#hints button {
+  padding: 6px 12px;
+  font-size: 14px;
+  margin-right: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#hints button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
